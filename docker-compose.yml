@@ -5,7 +5,7 @@ version: "3"
 
 services:
   app:
-    image: markoshust/magento-nginx:1.13-7
+    build: ./images/nginx/1.13
     ports:
       - "80:8000"
       - "443:8443"
@@ -18,27 +18,27 @@ services:
       - sockdata:/sock
 
   phpfpm:
-    image: markoshust/magento-php:7.2-fpm-0
+    build: ./images/php/7.2
     links:
       - db
     volumes: *appvolumes
 
-  db:
-    image: percona:5.7
-    ports:
-      - "3306:3306"
-    env_file: env/db.env
-    volumes:
-      - dbdata:/var/lib/mysql
+  #db:
+  #  image: percona:5.7
+  #  ports:
+  #    - "3306:3306"
+  #  env_file: env/db.env
+  #  volumes:
+  #    - dbdata:/var/lib/mysql
 
   redis:
     image: redis:5.0
 
-  elasticsearch:
-    image: elasticsearch:5.6
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+  #elasticsearch:
+  #  image: elasticsearch:5.6
+  #  ports:
+  #    - "9200:9200"
+  #    - "9300:9300"
 
   # Disabling cron by default as it uses higher CPU, enable if needed
   #cron:
@@ -52,5 +52,5 @@ services:
 
 volumes:
   appdata:
-  dbdata:
+#  dbdata:
   sockdata:

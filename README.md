@@ -1,6 +1,6 @@
-# Magento CE on Gcloud and Kubernetes
+# Magento 2.3 CE on Gcloud and Kubernetes
 
-This repository describes the installation process to set up Magento CE in Google Cloud Platform and Kubernets as described [here](https://cloud.google.com/solutions/architecture/magento-deployment#deploying_magento_using_kubernetes_engine). This project was forked from [markshust/docker-magento](https://github.com/markshust/docker-magento).
+This repository describes the installation process to set up Magento 2.3 CE in Google Cloud Platform and Kubernets as described [here](https://cloud.google.com/solutions/architecture/magento-deployment#deploying_magento_using_kubernetes_engine). This project was forked from [markshust/docker-magento](https://github.com/markshust/docker-magento).
 
 ## Prerrequisites
 
@@ -15,7 +15,7 @@ This repository describes the installation process to set up Magento CE in Googl
 git clone https://github.com/carpio701021/magento-gcloud-kubernetes.git
 ```
 
-- Set project name (to names on gcloud):
+- Set project name (as prefix on gcloud resources):
 
 ```bash
 export GCLOUD_PROJ_NAME=sartorial0301
@@ -58,16 +58,23 @@ gcloud compute --project=sartorial-platform instances create $GCLOUD_PROJ_NAME-s
 --tags=http-server,https-server --image=ubuntu-1804-bionic-v20190212a --image-project=ubuntu-os-cloud \
 --boot-disk-size=10GB --boot-disk-type=pd-standard --boot-disk-device-name=$GCLOUD_PROJ_NAME-search
 
+# Create Kubernetes Cluster
+gcloud beta container --project "sartorial-platform" clusters create "$GCLOUD_PROJ_NAME-k8s-cluster" --zone "us-central1-a" --username "admin" --cluster-version "1.11.7-gke.4" --machine-type "n1-standard-1" --image-type "COS" --disk-type "pd-standard" --disk-size "100" --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --num-nodes "3" --enable-cloud-logging --enable-cloud-monitoring --no-enable-ip-alias --network "projects/sartorial-platform/global/networks/default" --subnetwork "projects/sartorial-platform/regions/us-central1/subnetworks/default" --addons HorizontalPodAutoscaling,HttpLoadBalancing --enable-autoupgrade --enable-autorepair
+
+
 ```
 
 - Connect to Messaging server created and install RabbitMQ as described [here](https://devdocs.magento.com/guides/v2.3/install-gde/prereq/install-rabbitmq.html
 ).
 - Connect to Search server created and install Elastic Search as described [here](https://devdocs.magento.com/guides/v2.3/config-guide/elasticsearch/es-overview.html).
 
-- Download sources
-
-
 - Configure the Magento Key as described [here](https://devdocs.magento.com/guides/v2.3/install-gde/prereq/connect-auth.html) on file `src/auth.json`
 - []()
 
 
+
+- Configure on the local env
+echo "Your system password has been requested to add an entry to /etc/hosts..."
+echo "127.0.0.1 $DOMAIN" | sudo tee -a /etc/hosts
+
+bin/setup $DOMAIN

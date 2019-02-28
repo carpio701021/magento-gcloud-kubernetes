@@ -1,5 +1,20 @@
 #!/bin/bash
 BASE_URL=${1:-magento2.test}
+DB_HOST="127.0.0.1"
+DB_NAME="magento"
+DB_USER="magento"
+DB_PASSWORD="magento"
+ADMIN_FIRSTNAME="John"
+ADMIN_LASTNAME="Smith"
+ADMIN_EMAIL="john.smith@gmail.com"
+ADMIN_USER="john.smith"
+ADMIN_PASSWORD="password123"
+RABBITMQ_HOSTNAME="127.0.0.1"
+RABBITMQ_PORT="5672"
+RABBITMQ_USER="magento"
+RABBITMQ_PASSWORD="magento"
+RABBITMQ_VIRTUALHOSTS="/"
+
 
 bin/stop
 
@@ -16,20 +31,21 @@ echo "Forcing reinstall of composer deps to ensure perms & reqs..."
 bin/clinotty composer install
 
 bin/clinotty bin/magento setup:install \
-  --db-host=db \
-  --db-name=magento \
-  --db-user=magento \
-  --db-password=magento \
+  --db-host=$DB_HOST \
+  --db-name=$DB_NAME \
+  --db-user=$DB_USER \
+  --db-password=$DB_PASSWORD \
   --base-url=https://$BASE_URL/ \
-  --admin-firstname=John \
-  --admin-lastname=Smith \
-  --admin-email=john.smith@gmail.com \
-  --admin-user=john.smith \
-  --admin-password=password123 \
+  --admin-firstname=$ADMIN_FIRSTNAME \
+  --admin-lastname=$ADMIN_LASTNAME \
+  --admin-email=$ADMIN_EMAIL \
+  --admin-user=$ADMIN_USER \
+  --admin-password=$ADMIN_PASSWORD \
   --language=en_US \
   --currency=USD \
   --timezone=America/New_York \
-  --use-rewrites=1
+  --use-rewrites=1 \
+  --amqp-host="$RABBITMQ_HOSTNAME" --amqp-port="$RABBITMQ_PORT" --amqp-user="$RABBITMQ_USER" --amqp-password="$RABBITMQ_PASSWORD" --amqp-virtualhost=$RABBITMQ_VIRTUALHOSTS
 
 echo "Turning on developer mode.."
 bin/clinotty bin/magento deploy:mode:set developer
@@ -44,6 +60,14 @@ bin/clinotty bin/magento setup:config:set --no-interaction --cache-backend=redis
 
 echo "Enabling Redis for session..."
 bin/clinotty bin/magento setup:config:set --no-interaction --session-save=redis --session-save-redis-host=redis --session-save-redis-log-level=4 --session-save-redis-db=1
+
+echo "Starting message queue consumers (RabbitMQ)"
+bin/magento queue:consumers:start sharedCatalogUpdatePrice
+bin/magento queue:consumers:start sharedCatalogUpdateCategoryPermissions
+bin/magento queue:consumers:start quoteItemCleaner
+bin/magento queue:consumers:start inventoryQtyCounter
+bin/magento queue:consumers:start async.operations.all
+
 
 echo "Clearing the cache for good measure..."
 bin/clinotty bin/magento cache:flush
