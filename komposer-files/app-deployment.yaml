@@ -1,0 +1,107 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.16.0 (0c01309)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: app
+    spec:
+      containers:
+      - image: redis:5.0
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources: {}
+      - image: markoshust/magento-nginx:1.13-7
+        name: app
+        ports:
+        - containerPort: 8000
+        - containerPort: 8443
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/www/.composer
+        #  subPath: .composer
+          name: composer
+        - mountPath: /var/www/html
+        #  subPatch: html
+          name: appdata
+        - mountPath: /sock
+        #  subPatch: /sock
+          name: sockdata
+        securityContext:
+          allowPrivilegeEscalation: true
+      - image: carpio701021/magento2.3
+        name: phpfpm
+        ports:
+        - containerPort: 9001
+        env:
+        - name: BASE_URL
+          value: "127.0.0.1"
+        - name: DB_HOST
+          value: "35.236.98.126"
+        - name: DB_NAME
+          value: "sartorial0301"
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: "OvSv7HN5ksW8"
+        - name: ADMIN_FIRSTNAME
+          value: "John"
+        - name: ADMIN_LASTNAME
+          value: "Smith"
+        - name: ADMIN_EMAIL
+          value: "john.smith@gmail.com"
+        - name: ADMIN_USER
+          value: "john.smith"
+        - name: ADMIN_PASSWORD
+          value: "McAAPh29aT3N"
+        - name: RABBITMQ_HOSTNAME
+          value: "10.1.0.2"
+        - name: RABBITMQ_PORT
+          value: "5672"
+        - name: RABBITMQ_USER
+          value: "guest"
+        - name: RABBITMQ_PASSWORD
+          value: "guest"
+        - name: RABBITMQ_VIRTUALHOSTS
+          value: "/"
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/www/.composer
+        #  subPatch: .composer
+          name: composer
+        - mountPath: /var/www/html
+        #  subPatch: html
+          name: appdata
+        - mountPath: /sock
+        #  subPatch: /sock
+          name: sockdata
+        securityContext:
+          allowPrivilegeEscalation: true
+      restartPolicy: Always
+      volumes:
+      - name: composer
+        persistentVolumeClaim:
+          claimName: composer
+      - name: appdata
+        persistentVolumeClaim:
+          claimName: appdata
+      - name: sockdata
+        persistentVolumeClaim:
+          claimName: sockdata
+      securityContext:
+          runAsUser: 1000
+          fsGroup: 1000
+status: {}

@@ -1,18 +1,18 @@
 #!/bin/bash
-BASE_URL=${1:-magento2.test}
-DB_HOST="127.0.0.1"
-DB_NAME="magento"
-DB_USER="magento"
-DB_PASSWORD="magento"
+BASE_URL=${1:-magento2.test} # BASE_URL=127.0.0.1
+DB_HOST="35.236.98.126"
+DB_NAME="sartorial0301"
+DB_USER="root"
+DB_PASSWORD="OvSv7HN5ksW8"
 ADMIN_FIRSTNAME="John"
 ADMIN_LASTNAME="Smith"
 ADMIN_EMAIL="john.smith@gmail.com"
 ADMIN_USER="john.smith"
-ADMIN_PASSWORD="password123"
-RABBITMQ_HOSTNAME="127.0.0.1"
+ADMIN_PASSWORD="McAAPh29aT3N"
+RABBITMQ_HOSTNAME="10.1.0.2"
 RABBITMQ_PORT="5672"
-RABBITMQ_USER="magento"
-RABBITMQ_PASSWORD="magento"
+RABBITMQ_USER="guest"
+RABBITMQ_PASSWORD="guest"
 RABBITMQ_VIRTUALHOSTS="/"
 
 
@@ -30,6 +30,9 @@ bin/clinotty chmod u+x bin/magento
 echo "Forcing reinstall of composer deps to ensure perms & reqs..."
 bin/clinotty composer install
 
+echo
+echo
+echo "Installing magento"
 bin/clinotty bin/magento setup:install \
   --db-host=$DB_HOST \
   --db-name=$DB_NAME \
@@ -61,12 +64,10 @@ bin/clinotty bin/magento setup:config:set --no-interaction --cache-backend=redis
 echo "Enabling Redis for session..."
 bin/clinotty bin/magento setup:config:set --no-interaction --session-save=redis --session-save-redis-host=redis --session-save-redis-log-level=4 --session-save-redis-db=1
 
-echo "Starting message queue consumers (RabbitMQ)"
-bin/magento queue:consumers:start sharedCatalogUpdatePrice
-bin/magento queue:consumers:start sharedCatalogUpdateCategoryPermissions
-bin/magento queue:consumers:start quoteItemCleaner
-bin/magento queue:consumers:start inventoryQtyCounter
-bin/magento queue:consumers:start async.operations.all
+echo "Listing message queue consumers (RabbitMQ)"
+bin/clinotty bin/magento queue:consumers:list
+echo "You can run mannualy with the command: "
+echo "bin/magento queue:consumers:start <consumer> &"
 
 
 echo "Clearing the cache for good measure..."
