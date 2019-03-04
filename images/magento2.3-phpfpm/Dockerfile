@@ -56,15 +56,15 @@ RUN printf '* *\t* * *\tapp\t%s/usr/local/bin/php /var/www/html/update/cron.php\
 RUN printf '* *\t* * *\tapp\t%s/usr/local/bin/php /var/www/html/bin/magento cron:run\n' >> /etc/crontab
 RUN printf '* *\t* * *\tapp\t%s/usr/local/bin/php /var/www/html/bin/magento setup:cron:run\n#\n' >> /etc/crontab
 
-COPY images/php/7.2/conf/www.conf /usr/local/etc/php-fpm.d/
-COPY images/php/7.2/conf/php.ini /usr/local/etc/php/
-COPY images/php/7.2/conf/php-fpm.conf /usr/local/etc/
-COPY images/php/7.2/bin/cronstart /usr/local/bin/
+COPY images/magento2.3-phpfpm/conf/www.conf /usr/local/etc/php-fpm.d/
+COPY images/magento2.3-phpfpm/conf/php.ini /usr/local/etc/php/
+COPY images/magento2.3-phpfpm/conf/php-fpm.conf /usr/local/etc/
+COPY images/magento2.3-phpfpm/bin/cronstart /usr/local/bin/
 
 RUN mkdir /sock
 RUN chown -R app:app /usr/local/etc/php/conf.d /sock
 
-COPY src/./ /var/www/html/
+COPY ./src/./ /var/www/html/
 
 USER root
 RUN chown -R app:app /var/www
@@ -80,11 +80,14 @@ ENV ADMIN_LASTNAME magento
 ENV ADMIN_EMAIL magento
 ENV ADMIN_USER magento
 ENV ADMIN_PASSWORD magento
+ENV SESSION_REDIS_HOST magento
+ENV CACHE_REDIS_HOST magento
+ENV CACHE_REDIS_PORT magento
 ENV RABBITMQ_HOSTNAME magento
 ENV RABBITMQ_PORT magento
 ENV RABBITMQ_USER magento
 ENV RABBITMQ_PASSWORD magento
-ENV RABBITMQ_VIRTUALHOSTS magento
+ENV RABBITMQ_VIRTUALHOST magento
 
 RUN echo "Forcing reinstall of composer deps to ensure perms & reqs..."
 RUN composer install
@@ -96,10 +99,11 @@ USER root
 RUN mkdir /var/www/html_tmp 
 #RUN chown -R app:app /var/www
 RUN cp -r /var/www/html/* /var/www/html_tmp/.
+COPY images/magento2.3-phpfpm/bin/install_magento.sh /usr/local/bin/
+RUN chown app:app /usr/local/bin/install_magento.sh
+RUN chmod +x /usr/local/bin/install_magento.sh
 
 USER app:app
-COPY images/php/7.2/bin/install_magento.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/install_magento.sh
 VOLUME /var/www
 WORKDIR /var/www/html
 
@@ -108,4 +112,4 @@ RUN echo "****************"
 ENTRYPOINT ["/usr/local/bin/install_magento.sh"]
 
 
-EXPOSE 9001
+EXPOSE 9001 9000

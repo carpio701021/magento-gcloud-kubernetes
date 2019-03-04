@@ -24,22 +24,22 @@ spec:
         ports:
         - containerPort: 6379
         resources: {}
-      - image: markoshust/magento-nginx:1.13-7
-        name: app
+      - image: carpio701021/magento2.3-nginx
+        name: nginx
         ports:
         - containerPort: 8000
         - containerPort: 8443
         resources: {}
         volumeMounts:
-        - mountPath: /var/www/.composer
+        #- mountPath: /var/www/.composer
         #  subPath: .composer
-          name: composer
+        #  name: composer
         - mountPath: /var/www/html
         #  subPatch: html
           name: appdata
-        - mountPath: /sock
+        #- mountPath: /sock
         #  subPatch: /sock
-          name: sockdata
+        #  name: sockdata
         securityContext:
           allowPrivilegeEscalation: true
       - image: carpio701021/magento2.3
@@ -67,6 +67,12 @@ spec:
           value: "john.smith"
         - name: ADMIN_PASSWORD
           value: "McAAPh29aT3N"
+        - name: SESSION_REDIS_HOST
+          value: "localhost"
+        - name: CACHE_REDIS_HOST
+          value: "localhost"
+        - name: CACHE_REDIS_PORT
+          value: "6379"
         - name: RABBITMQ_HOSTNAME
           value: "10.1.0.2"
         - name: RABBITMQ_PORT
@@ -75,32 +81,30 @@ spec:
           value: "guest"
         - name: RABBITMQ_PASSWORD
           value: "guest"
-        - name: RABBITMQ_VIRTUALHOSTS
+        - name: RABBITMQ_VIRTUALHOST
           value: "/"
         resources: {}
         volumeMounts:
-        - mountPath: /var/www/.composer
+        #- mountPath: /var/www/.composer
         #  subPatch: .composer
-          name: composer
+        #  name: composer
         - mountPath: /var/www/html
         #  subPatch: html
           name: appdata
-        - mountPath: /sock
-        #  subPatch: /sock
-          name: sockdata
         securityContext:
           allowPrivilegeEscalation: true
       restartPolicy: Always
       volumes:
-      - name: composer
-        persistentVolumeClaim:
-          claimName: composer
+      #- name: composer
+      #  persistentVolumeClaim:
+      #    claimName: composer
       - name: appdata
         persistentVolumeClaim:
           claimName: appdata
-      - name: sockdata
-        persistentVolumeClaim:
-          claimName: sockdata
+      #- name: sockdata
+      #  #persistentVolumeClaim:
+      #  #  claimName: sockdata
+      #  emptyDir: {}
       securityContext:
           runAsUser: 1000
           fsGroup: 1000
