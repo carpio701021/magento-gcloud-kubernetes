@@ -26,15 +26,15 @@ spec:
         - containerPort: 9001
         env:
         - name: BASE_URL
-          value: "35.235.120.10"
+          value: "<ip addres from kubernetes balancer>"
         - name: DB_HOST
-          value: "192.168.16.3"
+          value: "<database ip address>"
         - name: DB_NAME
-          value: "sartorial0301"
+          value: "<database name>"
         - name: DB_USER
-          value: "root"
+          value: "<database user>"
         - name: DB_PASSWORD
-          value: "OvSv7HN5ksW8"
+          value: "<database user password>"
         - name: ADMIN_FIRSTNAME
           value: "John"
         - name: ADMIN_LASTNAME
@@ -44,21 +44,21 @@ spec:
         - name: ADMIN_USER
           value: "john.smith"
         - name: ADMIN_PASSWORD
-          value: "McAAPh29aT3N"
+          value: "adminpassword"
         - name: SESSION_REDIS_HOST
-          value: "redis-service"
+          value: "redis-service" #don't change it!
         - name: CACHE_REDIS_HOST
-          value: "redis-service"
+          value: "redis-service" #don't change it!
         - name: CACHE_REDIS_PORT
           value: "6379"
         - name: RABBITMQ_HOSTNAME
-          value: "rabbit-service"
+          value: "rabbit-service" #don't change it!
         - name: RABBITMQ_PORT
           value: "5672"
         - name: RABBITMQ_USER
-          value: "magento0301"
+          value: "<rabbit user>"
         - name: RABBITMQ_PASSWORD
-          value: "lNQT6ySrYRMP"
+          value: "<rabbit user password>"
         - name: RABBITMQ_VIRTUALHOST
           value: "/"
         resources: {}
