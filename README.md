@@ -131,13 +131,14 @@ gcloud compute ssh $GCLOUD_PROJ_NAME-search
 
 - Create schema and user with privileges into the database. Save the details.
 
+- Enable the 'Private IP' option of your database on the Gcloud console and choose your VPC.
+
 - Configure Kubernetes to use the GC Kubernetes installation as described [here](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl).
 
 - Configure the environment variables on kubernetes files:
     - On `kubernetes/02_rabbit-service.yaml` file, configure the Rabbit address
     - On `kubernetes/03_elasticsearch-service.yaml` file, configure the Elastic search address
-    - On `kubernetes/06_phpfpm-deployment.yaml` file, configure the environment values (`env` section) with the desired values (and values obtained on previous steps from servers and database instance). 
-    - On `kubernetes/08_nginx-deployment.yaml` file,
+    - On `kubernetes/07_phpfpm-deployment.yaml` file, configure the environment values (`env` section) with the desired values (and values obtained on previous steps from servers and database instance). 
 
 - Run Kubernetes files one by one. Wait after each service/deployment/volume is ready to run the next. You can verify with the command `kubectl get all` to show if it is running.
 
@@ -147,16 +148,16 @@ kubectl create -f kubernetes/02_rabbit-service.yaml
 kubectl create -f kubernetes/03_elasticsearch-service.yaml
 kubectl create -f kubernetes/04_redis-deployment.yaml
 kubectl create -f kubernetes/05_redis-service.yaml
-kubectl create -f kubernetes/06_phpfpm-deployment.yaml
-kubectl create -f kubernetes/07_phpfpm-service.yaml
-kubectl create -f kubernetes/08_nginx-deployment.yaml
-kubectl create -f kubernetes/09_nginx-service.yaml
-kubectl create -f kubernetes/10_magento-service.yaml
+kubectl create -f kubernetes/06_magento-service.yaml
+kubectl create -f kubernetes/07_phpfpm-deployment.yaml
+kubectl create -f kubernetes/08_phpfpm-service.yaml
+kubectl create -f kubernetes/09_nginx-deployment.yaml
+kubectl create -f kubernetes/10_nginx-service.yaml
 ```
 
 - Once your Magento is running, login on the admin console and configure Elastic Search as described [here](https://devdocs.magento.com/guides/v2.3/config-guide/elasticsearch/es-config-nginx.html)
 
-
+- Installation completed.
 
 
 ## Rebuil your own docker images
@@ -182,8 +183,3 @@ docker push <your dockerhub username>/magento2.3-nginx
 - Modify the Kubernetes files: `kubernetes/06_phpfpm-deployment.yaml`, `kubernetes/08_nginx-deployment.yaml` with the new images.
 
 
-
-
-## **** Pending topics ****
-
-- Configure the Magento Key as described [here](https://devdocs.magento.com/guides/v2.3/install-gde/prereq/connect-auth.html) on file `src/auth.json`
