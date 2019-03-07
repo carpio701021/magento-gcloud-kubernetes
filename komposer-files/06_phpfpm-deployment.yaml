@@ -6,8 +6,8 @@ metadata:
     kompose.version: 1.16.0 (0c01309)
   creationTimestamp: null
   labels:
-    io.kompose.service: app
-  name: app
+    io.kompose.service: phpfpm
+  name: phpfpm
 spec:
   replicas: 1
   strategy:
@@ -16,41 +16,19 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.service: app
+        io.kompose.service: phpfpm
     spec:
       containers:
-      - image: redis:5.0
-        name: redis
-        ports:
-        - containerPort: 6379
-        resources: {}
-      - image: carpio701021/magento2.3-nginx
-        name: nginx
-        ports:
-        - containerPort: 8000
-        - containerPort: 8443
-        resources: {}
-        volumeMounts:
-        #- mountPath: /var/www/.composer
-        #  subPath: .composer
-        #  name: composer
-        - mountPath: /var/www/html
-        #  subPatch: html
-          name: appdata
-        #- mountPath: /sock
-        #  subPatch: /sock
-        #  name: sockdata
-        securityContext:
-          allowPrivilegeEscalation: true
-      - image: carpio701021/magento2.3
+      - image: carpio701021/magento2.3-phpfpm
         name: phpfpm
         ports:
+        - containerPort: 9000
         - containerPort: 9001
         env:
         - name: BASE_URL
-          value: "127.0.0.1"
+          value: "35.235.120.10"
         - name: DB_HOST
-          value: "35.236.98.126"
+          value: "192.168.16.3"
         - name: DB_NAME
           value: "sartorial0301"
         - name: DB_USER
@@ -68,43 +46,32 @@ spec:
         - name: ADMIN_PASSWORD
           value: "McAAPh29aT3N"
         - name: SESSION_REDIS_HOST
-          value: "localhost"
+          value: "redis-service"
         - name: CACHE_REDIS_HOST
-          value: "localhost"
+          value: "redis-service"
         - name: CACHE_REDIS_PORT
           value: "6379"
         - name: RABBITMQ_HOSTNAME
-          value: "10.1.0.2"
+          value: "rabbit-service"
         - name: RABBITMQ_PORT
           value: "5672"
         - name: RABBITMQ_USER
-          value: "guest"
+          value: "magento0301"
         - name: RABBITMQ_PASSWORD
-          value: "guest"
+          value: "lNQT6ySrYRMP"
         - name: RABBITMQ_VIRTUALHOST
           value: "/"
         resources: {}
         volumeMounts:
-        #- mountPath: /var/www/.composer
-        #  subPatch: .composer
-        #  name: composer
         - mountPath: /var/www/html
-        #  subPatch: html
           name: appdata
         securityContext:
           allowPrivilegeEscalation: true
       restartPolicy: Always
       volumes:
-      #- name: composer
-      #  persistentVolumeClaim:
-      #    claimName: composer
       - name: appdata
         persistentVolumeClaim:
           claimName: appdata
-      #- name: sockdata
-      #  #persistentVolumeClaim:
-      #  #  claimName: sockdata
-      #  emptyDir: {}
       securityContext:
           runAsUser: 1000
           fsGroup: 1000

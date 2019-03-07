@@ -1,0 +1,20 @@
+kind: Endpoints
+apiVersion: v1
+metadata:
+  name: rabbit-service
+subsets:
+  - addresses:
+      - ip: 10.1.0.2 
+    ports:
+      - port: 5672
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: rabbit-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 5672
+      targetPort: 5672

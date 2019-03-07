@@ -1,0 +1,20 @@
+kind: Endpoints
+apiVersion: v1
+metadata:
+  name: elasticsearch-service
+subsets:
+  - addresses:
+      - ip: 10.1.0.3
+    ports:
+      - port: 9200
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: elasticsearch-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 9200
+      targetPort: 9200

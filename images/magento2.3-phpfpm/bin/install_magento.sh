@@ -1,5 +1,7 @@
 #!/bin/bash
 cp -rf /var/www/html_tmp/* /var/www/html/.
+cp -f /var/www/html/nginx.conf.sample /var/www/html/nginx.conf
+cp -f /var/www/html/php.ini.sample /var/www/html/php.ini
 cd /var/www/html
 echo ******************************************************
 echo "Installing magento"
@@ -16,7 +18,7 @@ sed -i "s/%RABBITMQ_HOST%/"$RABBITMQ_HOST"/g" /var/www/html/app/etc/env.php
 sed -i "s/%RABBITMQ_PORT%/"$RABBITMQ_PORT"/g" /var/www/html/app/etc/env.php
 sed -i "s/%RABBITMQ_USER%/"$RABBITMQ_USER"/g" /var/www/html/app/etc/env.php
 sed -i "s/%RABBITMQ_PASSWORD%/"$RABBITMQ_PASSWORD"/g" /var/www/html/app/etc/env.php
-sed -i "s/%RABBITMQ_VIRTUALHOST%/"$RABBITMQ_VIRTUALHOST"/g" /var/www/html/app/etc/env.php
+sed -i "s|%RABBITMQ_VIRTUALHOST%|"$RABBITMQ_VIRTUALHOST"|g" /var/www/html/app/etc/env.php
 
 php /var/www/html/bin/magento setup:install \
   --db-host=$DB_HOST \
@@ -38,6 +40,7 @@ php /var/www/html/bin/magento setup:install \
   --amqp-user="$RABBITMQ_USER" \
   --amqp-password="$RABBITMQ_PASSWORD" \
   --amqp-virtualhost=$RABBITMQ_VIRTUALHOST
+
 echo 
 echo ******************************************************
 
@@ -51,10 +54,10 @@ echo "Forcing deploy of static content to speed up initial requests..."
 php /var/www/html/bin/magento setup:static-content:deploy -f 
 
 echo "Enabling redis for cache..."
-php /var/www/html/bin/magento setup:config:set --no-interaction --cache-backend=redis --cache-backend-redis-server=localhost --cache-backend-redis-db=0
+php /var/www/html/bin/magento setup:config:set --no-interaction --cache-backend=redis --cache-backend-redis-server=$CACHE_REDIS_HOST --cache-backend-redis-db=0
 
 echo "Enabling Redis for session..."
-php /var/www/html/bin/magento setup:config:set --no-interaction --session-save=redis --session-save-redis-host=localhost --session-save-redis-log-level=4 --session-save-redis-db=1
+php /var/www/html/bin/magento setup:config:set --no-interaction --session-save=redis --session-save-redis-host=$SESSION_REDIS_HOST --session-save-redis-log-level=4 --session-save-redis-db=1
 
 echo "Listing message queue consumers (RabbitMQ)"
 php /var/www/html/bin/magento queue:consumers:list
@@ -74,6 +77,6 @@ php /var/www/html/bin/magento cache:flush
 
 echo "Docker development environment setup complete."
 echo "You may now access your Magento instance at https://${BASE_URL}/"
-echo **** ls -la /var/www
-ls -la /var/www
-tail -f  /etc/hosts
+
+#tail -f  /var/www/html/var/log/system.log
+php-fpm

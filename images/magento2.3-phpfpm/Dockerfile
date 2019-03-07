@@ -89,7 +89,7 @@ ENV RABBITMQ_USER magento
 ENV RABBITMQ_PASSWORD magento
 ENV RABBITMQ_VIRTUALHOST magento
 
-RUN echo "Forcing reinstall of composer deps to ensure perms & reqs..."
+#Forcing reinstall of composer deps to ensure perms & reqs...
 RUN composer install
 RUN echo
 RUN echo
@@ -97,17 +97,18 @@ RUN echo
 
 USER root
 RUN mkdir /var/www/html_tmp 
-#RUN chown -R app:app /var/www
 RUN cp -r /var/www/html/* /var/www/html_tmp/.
 COPY images/magento2.3-phpfpm/bin/install_magento.sh /usr/local/bin/
 RUN chown app:app /usr/local/bin/install_magento.sh
 RUN chmod +x /usr/local/bin/install_magento.sh
 
+RUN apt-get install -y telnet curl wget sudo
+RUN echo "app:app" | chpasswd && adduser app sudo
+
 USER app:app
 VOLUME /var/www
 WORKDIR /var/www/html
 
-RUN echo "****************"
 
 ENTRYPOINT ["/usr/local/bin/install_magento.sh"]
 
